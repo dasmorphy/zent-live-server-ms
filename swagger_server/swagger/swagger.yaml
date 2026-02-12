@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: zent-live-server-ms
+  description: Logbook microservice
+  version: 1.0.0
+servers:
+- url: /rest/zent-live-server-api/v1.0/
+paths:
+  /get/live-server/all-logbooks:
+    get:
+      tags:
+      - Live server
+      summary: Obtiene las bitácoras en tiempo real
+      description: |
+        Endpoint SSE que mantiene una conexión abierta y envía eventos
+        en tiempo real cuando se crean nuevas bitácoras.
+      operationId: get_live_all_logbooks
+      parameters:
+      - name: externalTransactionId
+        in: query
+        required: true
+        schema:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      - name: channel
+        in: query
+        required: true
+        schema:
+          type: string
+          example: ZENTINEL
+      responses:
+        "200":
+          description: Stream de eventos en tiempo real
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  data: {"type":"logbook_saved","id":123}
+                x-content-type: text/event-stream
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.event_server_controller.EventLiveView
+components:
+  schemas:
+    GenericResponse:
+      properties:
+        data:
+          type: object
+          nullable: true
+          example: Estructura generica.
+        errorCode:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: Mensaje generico.
+        internalTransactionId:
+          type: string
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        externalTransactionId:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      example:
+        errorCode: 0
+        internalTransactionId: d290f1ee-6c54-4b01-90e6-d701748f0851
+        externalTransactionId: fcea920f7412b5da7be0cf42b8c93759
+        message: Mensaje generico.
+        data: {}
+    ResponseError:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+        internalTransactionId:
+          type: string
+        externalTransactionId:
+          type: string
+        message:
+          type: string
+
