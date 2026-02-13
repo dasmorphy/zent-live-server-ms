@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from gevent import monkey
+monkey.patch_all()
 from swagger_server.utils.logs.logging import log
 import connexion
 from connexion.resolver import MethodViewResolver
